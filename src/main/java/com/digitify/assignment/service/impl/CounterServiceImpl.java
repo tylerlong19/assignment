@@ -27,15 +27,17 @@ public class CounterServiceImpl implements CounterService {
       int i = 0;
       while (producerIncrement > i) {
         Thread producerThread = new Thread(() -> {
-          counter.getAndIncrement();
-          LOG.info("Counter incremented by producer Thread {} value {}",
-              Thread.currentThread().getName(), counter.get());
+          while (counter.get() < 100) {
+            counter.getAndIncrement();
+            LOG.info("Counter incremented by producer Thread {} value {}",
+                Thread.currentThread().getName(), counter.get());
+          }
         });
         producerThread.start();
         i++;
       }
       int j = 0;
-      while (producerIncrement > j) {
+      while (consumerIncrement > j) {
         Thread consumerThread = new Thread(() -> {
           while (counter.get() > 0) {
             counter.getAndDecrement();
